@@ -56,7 +56,7 @@ class MyAlgorithm{
     CollectionReference currentValue = FirebaseFirestore.instance.collection('CurrentValue');
     currentValue.doc('currentTemp').update({roomNumber: atc.toString()});
     print(atc.toString() + '\n');
-    participantEL.forEach((key, value) {print('\t' + key + '\t' + value.toString());});
+    participantEL.forEach((key, value) {print('\t' + key + '\t ' + value.toString());});
 
     return 1;
   }
