@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:myflutter/register.dart';
 import '../firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,14 +12,14 @@ import './participantInfo.dart';
 ParticipantInfo currentUserInfo = ParticipantInfo();
 RangeValues temperatureRangeValues = const RangeValues(21, 24);
 
-class RegisterTab extends StatefulWidget {
-  const RegisterTab({Key? key}) : super(key: key);
+class UserProfileTab extends StatefulWidget {
+  const UserProfileTab({Key? key}) : super(key: key);
 
   @override
-  State<RegisterTab> createState() => _RegisterTabState();
+  State<UserProfileTab> createState() => _UserProfileTabState();
 }
 
-class _RegisterTabState extends State<RegisterTab> {
+class _UserProfileTabState extends State<UserProfileTab> {
   final _formKey = GlobalKey<FormState>();
 
   // map of rooms, facilitate expansion
@@ -303,51 +304,6 @@ class _RegisterTabState extends State<RegisterTab> {
                 onPressed: () async {
                   // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
-                    // Listener, after logging in, upload the user's information
-                    // FirebaseAuth.instance
-                    //     .authStateChanges()
-                    //     .listen((User? user) {
-                    //   if (user != null) {
-                    //     // if the user is the one just registered
-                    //     if (user.email == currentUserInfo.email) {
-                    //       CollectionReference usersTable =
-                    //           FirebaseFirestore.instance.collection("users");
-                    //       usersTable
-                    //           .doc(user.uid)
-                    //           .set({
-                    //             'userName': currentUserInfo.userName,
-                    //             'location': currentUserInfo.location,
-                    //             'tempStart': currentUserInfo.tempStart,
-                    //             'tempEnd': currentUserInfo.tempEnd,
-                    //           })
-                    //           .then((value) => print("User Created"))
-                    //           .catchError((error) =>
-                    //               ScaffoldMessenger.of(context).showSnackBar(
-                    //                 const SnackBar(
-                    //                     content: Text(
-                    //                         'The email is already been used')),
-                    //               ));
-                    //     }
-                    //   }
-                    // });
-
-                    // Register.
-                    // try {
-                    //   await FirebaseAuth.instance
-                    //       .createUserWithEmailAndPassword(
-                    //           email: currentUserInfo.email,
-                    //           password: currentUserInfo.password)
-                    //       .then((value) =>
-                    //           // Log in after registering
-                    //           FirebaseAuth.instance.signInWithEmailAndPassword(
-                    //               email: currentUserInfo.email,
-                    //               password: currentUserInfo.password));
-                    // } on FirebaseAuthException catch (e) {
-                    //   ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(
-                    //         content: Text('The email is already been used')),
-                    //   );
-                    // }
 
                     CollectionReference usersTable =
                         FirebaseFirestore.instance.collection("users");
@@ -370,6 +326,11 @@ class _RegisterTabState extends State<RegisterTab> {
                   }
                 },
                 child: const Text('Submit'),
+              ),
+              ElevatedButton(onPressed: (){
+                FirebaseAuth.instance.signOut();
+                runApp(const RegisterPage());
+              }, child: const Text("Sign Out"),
               ),
             ],
           ),

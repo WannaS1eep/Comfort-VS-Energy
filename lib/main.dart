@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myflutter/login.dart';
+import './register.dart';
 import 'element/tab_views.dart';
 import './cal_tc.dart';
 import 'firebase_options.dart';
@@ -15,10 +17,18 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  MyAlgorithm myAlgorithm = MyAlgorithm();
-  Timer.periodic(const Duration(seconds: 15), (Timer t){myAlgorithm.calculateATC("2");});
+  FirebaseAuth auth = FirebaseAuth.instance;
 
-  runApp(const MainTabBar());
+  if(auth.currentUser == null){
+    runApp(const MaterialApp(title: "Register",home: LoginPage()));
+  }
+  else{
+    runApp(const MaterialApp(home: MainTabBar()));
+  }
+
+  // MyAlgorithm myAlgorithm = MyAlgorithm();
+  // Timer.periodic(const Duration(seconds: 20), (Timer t){myAlgorithm.calculateATC("2");print("doing algorithm");});
+
 }
 
 class MainTabBar extends StatelessWidget {
@@ -61,7 +71,7 @@ class ItemView {
 }
 
 const List<ItemView> items = <ItemView>[
-  ItemView(title: "User", icon: Icons.account_box, view: RegisterTab()),
+  ItemView(title: "User", icon: Icons.account_box, view: UserProfileTab()),
   ItemView(title: "Current State", icon: Icons.content_paste, view: CurrentValueTab(roomNumber: "2",)),
   ItemView(title: "All data", icon: Icons.table_rows_rounded, view: AllInfoTab()),
 
