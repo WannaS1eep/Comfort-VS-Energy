@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myflutter/element/rounded_button.dart';
 import 'package:myflutter/element/rounded_container.dart';
+import 'package:myflutter/login.dart';
 import './element/participantInfo.dart';
 import 'element/rounded_textformfield.dart';
 import 'main.dart';
@@ -315,9 +316,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                         'noiseLvl': currentUserInfo.noiseLvl,
                                         'tempStart': currentUserInfo.tempStart,
                                         'tempEnd': currentUserInfo.tempEnd,
+                                        'pmv': -1,
+                                        'ael': 0,
                                       })
-                                      .then((value) => print("User Created"));
-                                  runApp(const MainTabBar());
+                                      .then((value) => runApp(MainTabBar(userInfo: currentUserInfo,)));
+
                                 }
                               }
                             });
@@ -350,6 +353,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
+                GestureDetector(
+                  child: const Text("Want to Login?", textAlign: TextAlign.center,
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  onTap: (){runApp(const LoginPage());},
+                )
               ],
             ),
           ),

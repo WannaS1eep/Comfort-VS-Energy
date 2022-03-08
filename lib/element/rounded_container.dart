@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 class RoundedContainer extends StatelessWidget {
   final Widget child;
   final double paddingVertical;
+  final Color gradientColor1, gradientColor2;
   const RoundedContainer({
     Key? key,
     this.paddingVertical = 0,
+    this.gradientColor1 = const Color(0xFFE3F2FD),
+    this.gradientColor2 = const Color(0x80E3F2FD),
     required this.child,
   }) : super(key: key);
 
