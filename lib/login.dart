@@ -1,14 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myflutter/element/rounded_button.dart';
 import 'package:myflutter/element/rounded_container.dart';
 import 'package:myflutter/register.dart';
-import './element/participantInfo.dart';
-import 'element/rounded_textformfield.dart';
-import 'main.dart';
+import './element/participant_info.dart';
+import 'main_tab_bar.dart';
 
 
 class LoginPage extends StatefulWidget {

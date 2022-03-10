@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:myflutter/element/participantInfo.dart';
-import 'package:myflutter/element/pmv_button.dart';
+import 'package:myflutter/element/participant_info.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CurrentStatesTab extends StatefulWidget {
@@ -162,16 +161,16 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
                     ),
                     ElevatedButton(onPressed: snapshot.data![1].get("pmv") == -1?(){
                       setState(() {
-                        if(snapshot.data![1].get("pmv") == -1){
-                          CollectionReference usersTable =
-                          FirebaseFirestore.instance.collection("users");
-                          usersTable
-                              .doc(FirebaseAuth.instance.currentUser?.uid)
-                              .update({
-                            'location': _selectedLocation,
-                            'pmv': _scaleValue,
-                          });
-                        }
+
+                        CollectionReference usersTable =
+                        FirebaseFirestore.instance.collection("users");
+                        usersTable
+                            .doc(FirebaseAuth.instance.currentUser?.uid)
+                            .update({
+                          'location': _selectedLocation,
+                          'pmv': _scaleValue,
+                        });
+
                       });
 
 
