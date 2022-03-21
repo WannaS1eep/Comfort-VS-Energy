@@ -27,6 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String _selectedLocation = "0";
   String _selectedNoiseLvl = "0";
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -174,113 +175,113 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
 
-              // Noise
-              RoundedContainer(
-                paddingVertical: 5,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10,),
-                    const Icon(
-                      Icons.volume_off,
-                      color: Colors.black45,
-                      size: 26,
-                    ),
-                    const SizedBox(width: 15,),
-                    Expanded(
-                      child: DropdownButtonFormField(
-                        decoration: const InputDecoration(
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
-                        hint: const Text("Prefer a quiet surrounding?"),
-                        value: _selectedNoiseLvl,
-                        items: const [
-                          DropdownMenuItem(
-                            child: Text(
-                              "Prefer a quiet surrounding?",
-                              style: TextStyle(color: Colors.black26),
-                            ),
-                            value: "0",
-                            enabled: false,
-                          ),
-                          DropdownMenuItem(
-                            child: Text(
-                              "LVL1. I don't really care.",
-                            ),
-                            value: "1",
-                          ),
-                          DropdownMenuItem(
-                            child: Text(
-                              "LVL2. Just don't be too noisy.",
-                            ),
-                            value: "2",
-                          ),
-                          DropdownMenuItem(
-                            child: Text(
-                              "LVL3. I can't stand noise at all!",
-                            ),
-                            value: "3",
-                          ),
-                        ],
-                        onChanged: (value) {
-                          currentUserInfo.noiseLvl = value.toString();
-                          setState(() {
-                            _selectedNoiseLvl = value.toString();
-                          });
-                        },
-                        validator: (value) {
-                          if (value == "0") {
-                            return "Please choose noise tolerance";
-                          }
-                          return null;
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ),
+              // // Noise
+              // RoundedContainer(
+              //   paddingVertical: 5,
+              //   child: Row(
+              //     children: [
+              //       const SizedBox(width: 10,),
+              //       const Icon(
+              //         Icons.volume_off,
+              //         color: Colors.black45,
+              //         size: 26,
+              //       ),
+              //       const SizedBox(width: 15,),
+              //       Expanded(
+              //         child: DropdownButtonFormField(
+              //           decoration: const InputDecoration(
+              //             enabledBorder: InputBorder.none,
+              //             focusedBorder: InputBorder.none,
+              //           ),
+              //           hint: const Text("Prefer a quiet surrounding?"),
+              //           value: _selectedNoiseLvl,
+              //           items: const [
+              //             DropdownMenuItem(
+              //               child: Text(
+              //                 "Prefer a quiet surrounding?",
+              //                 style: TextStyle(color: Colors.black26),
+              //               ),
+              //               value: "0",
+              //               enabled: false,
+              //             ),
+              //             DropdownMenuItem(
+              //               child: Text(
+              //                 "LVL1. I don't really care.",
+              //               ),
+              //               value: "1",
+              //             ),
+              //             DropdownMenuItem(
+              //               child: Text(
+              //                 "LVL2. Just don't be too noisy.",
+              //               ),
+              //               value: "2",
+              //             ),
+              //             DropdownMenuItem(
+              //               child: Text(
+              //                 "LVL3. I can't stand noise at all!",
+              //               ),
+              //               value: "3",
+              //             ),
+              //           ],
+              //           onChanged: (value) {
+              //             currentUserInfo.noiseLvl = value.toString();
+              //             setState(() {
+              //               _selectedNoiseLvl = value.toString();
+              //             });
+              //           },
+              //           validator: (value) {
+              //             if (value == "0") {
+              //               return "Please choose noise tolerance";
+              //             }
+              //             return null;
+              //           },
+              //         ),
+              //       )
+              //     ],
+              //   ),
+              // ),
 
 
-              // Temperature
-              RoundedContainer(
-                paddingVertical: 5,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 10,),
-                    const Icon(
-                      Icons.device_thermostat,
-                      color: Colors.black45,
-                      size: 26,
-                    ),
-                    SizedBox(
-                      width: 200,
-                      child: RangeSlider(
-                        values: temperatureRangeValues,
-                        onChanged: (RangeValues values) {
-                          setState(() {
-                            temperatureRangeValues = values;
-                            currentUserInfo.tempStart = values.start.round();
-                            currentUserInfo.tempEnd = values.end.round();
-                          });
-                        },
-                        min: 19,
-                        max: 26,
-                        divisions: 7,
-                        labels: RangeLabels(
-                          temperatureRangeValues.start.round().toString(),
-                          temperatureRangeValues.end.round().toString(),
-                        ),
-                      ),
-                    ),
-                    Text(
-                        "${currentUserInfo.tempStart} -- ${currentUserInfo.tempEnd}",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18.0,
-                            color: Colors.black45)),
-                  ],
-                ),
-              ),
+              // // Temperature
+              // RoundedContainer(
+              //   paddingVertical: 5,
+              //   child: Row(
+              //     children: [
+              //       const SizedBox(width: 10,),
+              //       const Icon(
+              //         Icons.device_thermostat,
+              //         color: Colors.black45,
+              //         size: 26,
+              //       ),
+              //       SizedBox(
+              //         width: 200,
+              //         child: RangeSlider(
+              //           values: temperatureRangeValues,
+              //           onChanged: (RangeValues values) {
+              //             setState(() {
+              //               temperatureRangeValues = values;
+              //               currentUserInfo.tempStart = values.start.round();
+              //               currentUserInfo.tempEnd = values.end.round();
+              //             });
+              //           },
+              //           min: 19,
+              //           max: 26,
+              //           divisions: 7,
+              //           labels: RangeLabels(
+              //             temperatureRangeValues.start.round().toString(),
+              //             temperatureRangeValues.end.round().toString(),
+              //           ),
+              //         ),
+              //       ),
+              //       Text(
+              //           "${currentUserInfo.tempStart} -- ${currentUserInfo.tempEnd}",
+              //           style: const TextStyle(
+              //               fontWeight: FontWeight.w600,
+              //               fontSize: 18.0,
+              //               color: Colors.black45)),
+              //     ],
+              //   ),
+              // ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -311,6 +312,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                       'tempEnd': currentUserInfo.tempEnd,
                                       'pmv': -1,
                                       'ael': 0,
+                                      'votes': [],
+                                      'voteIndex': 0,
+                                      'voted': false,
                                     })
                                     .then((value) => runApp(MainTabBar(userInfo: currentUserInfo,)));
 
@@ -347,7 +351,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ],
               ),
               GestureDetector(
-                child: const Text("Want to Login?", textAlign: TextAlign.center,
+                child: const Text("Already have an account?", textAlign: TextAlign.center,
                   style: TextStyle(
                     decoration: TextDecoration.underline,
                     color: Colors.black54,

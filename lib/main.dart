@@ -39,7 +39,7 @@ void main() async{
   }
 
   MyAlgorithm myAlgorithm = MyAlgorithm("1");
-  myAlgorithm.start(30);
+  myAlgorithm.start(2);
   // Timer.periodic(const Duration(seconds: 20), (Timer t){myAlgorithm.calculateATC("2");print("doing algorithm");});
 
 }

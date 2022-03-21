@@ -21,23 +21,35 @@ class MyAlgorithm {
 
     double maxLoss = double.negativeInfinity;
     String maxLossParticipant = "";
+    double minLoss = double.infinity;
+    String minLossParticipant = "";
     for (DocumentSnapshot data in snapshot.docs) {
-      if (data['location'] == roomNumber && data['pmv'] != -1) {
+      if (data['location'] == roomNumber && data['voted']) {
         // -3 因为range是从0-6的
-        participantTC[data.id] = data['pmv'].round() - 3 + currentSetting;
+        double allVotes = 0;
+        data['votes'].forEach((value){
+          allVotes += value;
+        });
+        allVotes /= data['votes'].length;
+        participantTC[data.id] = allVotes.round();
         // participantEL[data.id] = participantELLastRound[data.id] ?? 0.0;
         participantEL[data.id] = data['ael'];
         if (participantEL[data.id] > maxLoss) {
           maxLoss = participantEL[data.id].toDouble();
           maxLossParticipant = data.id;
         }
+        if(participantEL[data.id] < minLoss){
+          minLoss = participantEL[data.id].toDouble();
+          minLossParticipant = data.id;
+        }
 
-        // reset the pvm
-        CollectionReference usersTable =
-            FirebaseFirestore.instance.collection("users");
-        usersTable.doc(data.id).update({
-          'pmv': -1,
-        });
+        // reset the voted value
+        // TODO
+        // CollectionReference usersTable =
+        //     FirebaseFirestore.instance.collection("users");
+        // usersTable.doc(data.id).update({
+        //   'voted': false,
+        // });
       }
     }
     atc = participantTC[maxLossParticipant] ?? currentSetting;
@@ -48,33 +60,55 @@ class MyAlgorithm {
       currentSetting + 2,
       currentSetting - 2,
       currentSetting + 3,
-      currentSetting - 3
+      currentSetting - 3,
     ];
     // use the bool value to get the first matched value in settingList
     bool flag = true;
+    double maxMinAEL = double.negativeInfinity;
     for (int element in settingList) {
-      Map participantELNextRound = getAllNextRoundEL(element);
+
+      Map<String, double> participantELNextRound = getAllNextRoundEL(element);
       // 新一轮的 最大的AEL减少
       if (maxLossParticipant != "" &&
-          participantELNextRound[maxLossParticipant] <
-              participantEL[maxLossParticipant]) {
-        // 新一轮的 所有人总的AEL减少
-        if (flag) {
+          participantELNextRound[maxLossParticipant]! <
+              participantEL[maxLossParticipant]! ) {
+        // 新一轮的 所有人总的AEL的绝对值减少
+
+        if(participantELNextRound[minLossParticipant]! >maxMinAEL){
           atc = element;
           participantELSelected = participantELNextRound;
-          flag = false;
         }
 
-        if (getGrossAbsAEL(participantELNextRound) <
-            getGrossAbsAEL(participantEL)) {
-          atc = element;
-          participantELSelected = participantELNextRound;
-          break;
-        }
+        // if (flag) {
+        //   atc = element;
+        //   participantELSelected = participantELNextRound;
+        //   flag = false;
+        // }
+        //
+        // if (getGrossAbsAEL(participantELNextRound) <
+        //     getGrossAbsAEL(participantEL)) {
+        //   atc = element;
+        //   participantELSelected = participantELNextRound;
+        //   break;
+        // }
       }
+      // else{
+      //   print("there");
+      //   participantELSelected = getAllNextRoundEL(atc);
+      // }
+    }
+
+    if(atc>participantTC[maxLossParticipant]! && atc> currentSetting){
+      atc = participantTC[maxLossParticipant]!;
+      print("works");
+    }
+    if(atc<participantTC[maxLossParticipant]! && atc< currentSetting){
+      atc = participantTC[maxLossParticipant]!;
+      print("works");
     }
 
     currentSetting = atc;
+
 
     // update the current setting value
     CollectionReference currentValue =
@@ -86,17 +120,13 @@ class MyAlgorithm {
       CollectionReference currentValue =
           FirebaseFirestore.instance.collection('users');
       currentValue.doc(key).update({'ael': value});
-      print(key);
-      print('\t');
-      print(value);
-      print('\n');
     });
-
+    print(participantELSelected);
     return 1;
   }
 
-  Map getAllNextRoundEL(int nextATC) {
-    Map allNextRoundEL = {};
+  Map<String, double> getAllNextRoundEL(int nextATC) {
+    Map<String, double> allNextRoundEL = {};
     double averageEL = 0;
     participantTC.forEach((key, value) {
       averageEL += (nextATC - value).abs();
@@ -122,6 +152,7 @@ class MyAlgorithm {
   }
 
   Future<void> start(int second) async {
+    // Get and set current temp setting
     Map<String, dynamic> data = {};
     await FirebaseFirestore.instance
         .collection("CurrentValue")
@@ -140,7 +171,7 @@ class MyAlgorithm {
     calculateATC();
     Timer.periodic(Duration(seconds: second), (Timer t) {
       calculateATC();
-      print("doing algorithm");
+      // print("doing algorithm");
     });
   }
 }

@@ -30,6 +30,9 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
   List<Color> pmvScaleColors= [const Color(0xFF0555F7), const Color(0xFF3DBEFA), const Color(0xFF4EEFB5),const Color(0xFF43EE4C), const Color(0xFFE1EB72), const Color(0xFFF5994E),const Color(0xFFEB0000)];
   LinearGradient pmvScaleGradient = const LinearGradient(colors: [Color(0x800555F7), Color(0x803DBEFA), Color(0x804EEFB5),Color(0x8043EE4C), Color(0x80E1EB72), Color(0x80F5994E),Color(0x80EB0000)]);
 
+  int minSettingValue = 19;
+  int maxSettingValue = 30;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -82,19 +85,19 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
                           .toList()
                     ],
                     onChanged: (value) {
-                      FirebaseAuth.instance
-                          .authStateChanges()
-                          .listen((User? user) {
-                        if (user != null) {
-                          // if the user is the one just registered
-
-                          CollectionReference usersTable =
-                              FirebaseFirestore.instance.collection("users");
-                          usersTable.doc(user.uid).update({
-                            'location': _selectedLocation,
-                          });
-                        }
-                      });
+                      // FirebaseAuth.instance
+                      //     .authStateChanges()
+                      //     .listen((User? user) {
+                      //   if (user != null) {
+                      //     // if the user is the one just registered
+                      //
+                      //     CollectionReference usersTable =
+                      //         FirebaseFirestore.instance.collection("users");
+                      //     usersTable.doc(user.uid).update({
+                      //       'location': _selectedLocation,
+                      //     });
+                      //   }
+                      // });
                       widget.userInfo.location = value.toString();
                       setState(() {
                         _selectedLocation = value.toString();
@@ -152,15 +155,32 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
                           divisions:6,
                           value: _scaleValue,
                           label: pmvScale[_scaleValue.round()],
-                          onChanged: snapshot.data![1].get("pmv") == -1 ? (value) {
-                            setState(() {
-                              _scaleValue = value;
-                            });
-                          } : null,
-                          ),
+                          onChanged: (snapshot.data![1].get("voted") && snapshot.data![1].get("location") == widget.userInfo.location)? null : (value) {
+                            double valueAfter = snapshot.data![0].get(_selectedLocation) + value -3;
+                            if(valueAfter>minSettingValue && valueAfter<maxSettingValue){
+                              setState(() {
+                                _scaleValue = value;
+                              });
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('The email is already been used')),
+                              );
+                            }
+
+                          },
+                      ),
                     ),
-                    ElevatedButton(onPressed: snapshot.data![1].get("pmv") == -1?(){
+                    ElevatedButton(onPressed: (snapshot.data![1].get("voted") && snapshot.data![1].get("location") == widget.userInfo.location)? null : (){
                       setState(() {
+
+                        double voteValue = snapshot.data![0].get(_selectedLocation) + _scaleValue;
+                        if(widget.userInfo.votes.length <= widget.userInfo.voteIndex){
+                          widget.userInfo.votes.add(voteValue);
+                        }else{
+                          widget.userInfo.votes[widget.userInfo.voteIndex] = voteValue;
+                        }
+                        widget.userInfo.voteIndex = (widget.userInfo.voteIndex + 1) % 3;
 
                         CollectionReference usersTable =
                         FirebaseFirestore.instance.collection("users");
@@ -168,13 +188,15 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
                             .doc(FirebaseAuth.instance.currentUser?.uid)
                             .update({
                           'location': _selectedLocation,
-                          'pmv': _scaleValue,
+                          'voteIndex': widget.userInfo.voteIndex,
+                          'votes': widget.userInfo.votes,
+                          'voted': true,
                         });
 
                       });
 
 
-                      }:null, child: const Text("Submit")),
+                      }, child: const Text("Submit")),
 
                     const SizedBox(height: 10),
                     // const Text("My thermal comfort: 20℃ - 23℃",

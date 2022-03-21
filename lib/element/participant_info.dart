@@ -8,6 +8,8 @@ class ParticipantInfo {
   String noiseLvl = "";
   int tempStart = 21;
   int tempEnd = 24;
+  List votes = [];
+  int voteIndex = 0;
 
   Future<void> getUserInfoByID(String? userID) async {
 
@@ -21,6 +23,8 @@ class ParticipantInfo {
         noiseLvl = data["noiseLvl"];
         tempStart = data["tempStart"];
         tempEnd = data["tempEnd"];
+        votes = data['votes'];
+        voteIndex = data['voteIndex'];
       }
     });
 
