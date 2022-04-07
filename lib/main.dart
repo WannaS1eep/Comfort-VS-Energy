@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:myflutter/add_pariticipant.dart';
 import 'package:myflutter/login.dart';
 import 'element/participant_info.dart';
 import 'algo/cal_tc.dart';
@@ -38,8 +39,13 @@ void main() async{
     // TODO: else return error page
   }
 
-  MyAlgorithm myAlgorithm = MyAlgorithm("1");
+  AddP a = AddP();
+  a.resetAEL("6");
+  // a.add();
+
+  MyAlgorithm myAlgorithm = MyAlgorithm("6");
   myAlgorithm.start(2);
+
   // Timer.periodic(const Duration(seconds: 20), (Timer t){myAlgorithm.calculateATC("2");print("doing algorithm");});
 
 }

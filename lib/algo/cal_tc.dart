@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 class MyAlgorithm {
   Map<String, int> participantTC = {};
@@ -9,12 +10,15 @@ class MyAlgorithm {
   int atc = 0;
   String roomNumber;
 
+  int round = 0;
+
   MyAlgorithm(this.roomNumber);
 
   // aggregated thermal comfort
-  Future<int> calculateATC() async {
+  Future<void> calculateATC() async {
     participantTC = {};
     participantEL = {};
+    participantELSelected = {};
     CollectionReference collectionRef =
         FirebaseFirestore.instance.collection("users");
     QuerySnapshot snapshot = await collectionRef.get();
@@ -26,12 +30,25 @@ class MyAlgorithm {
     for (DocumentSnapshot data in snapshot.docs) {
       if (data['location'] == roomNumber && data['voted']) {
         // -3 因为range是从0-6的
-        double allVotes = 0;
-        data['votes'].forEach((value){
-          allVotes += value;
-        });
-        allVotes /= data['votes'].length;
-        participantTC[data.id] = allVotes.round();
+
+        // TODO: calculate the average value
+        // double allVotes = 0;
+        // data['votes'].forEach((value){
+        //   allVotes += value;
+        // });
+        // allVotes /= data['votes'].length;
+
+        // participantTC[data.id] = allVotes.round();
+
+        participantTC[data.id] = data['votes'][round].round();
+        if(data['votes'][round]>=currentSetting){
+          participantTC[data.id] = data['votes'][round]-currentSetting>3? currentSetting+3 : data['votes'][round].round();
+        }
+        else{
+          participantTC[data.id] = currentSetting-data['votes'][round]>3? currentSetting-3 : data['votes'][round].round();
+        }
+
+
         // participantEL[data.id] = participantELLastRound[data.id] ?? 0.0;
         participantEL[data.id] = data['ael'];
         if (participantEL[data.id] > maxLoss) {
@@ -52,60 +69,86 @@ class MyAlgorithm {
         // });
       }
     }
-    atc = participantTC[maxLossParticipant] ?? currentSetting;
-    List settingList = [
-      currentSetting,
-      currentSetting + 1,
-      currentSetting - 1,
-      currentSetting + 2,
-      currentSetting - 2,
-      currentSetting + 3,
-      currentSetting - 3,
-    ];
-    // use the bool value to get the first matched value in settingList
-    bool flag = true;
-    double maxMinAEL = double.negativeInfinity;
-    for (int element in settingList) {
 
-      Map<String, double> participantELNextRound = getAllNextRoundEL(element);
-      // 新一轮的 最大的AEL减少
-      if (maxLossParticipant != "" &&
-          participantELNextRound[maxLossParticipant]! <
-              participantEL[maxLossParticipant]! ) {
-        // 新一轮的 所有人总的AEL的绝对值减少
 
-        if(participantELNextRound[minLossParticipant]! >maxMinAEL){
-          atc = element;
-          participantELSelected = participantELNextRound;
+
+    // if can't find Ps with max and min EL
+    if(maxLossParticipant == "" || minLossParticipant == ""){
+      return;
+    }
+
+    round ++;
+
+    // They have the same value means there is only one p
+    if(maxLossParticipant == minLossParticipant){
+      atc = participantTC[maxLossParticipant]!;
+      participantELSelected = getAllNextRoundEL(atc);
+    }
+    else{
+      // 因为可能存在“EL最大减小，最小增大"不能满足的情况，所以先预设为这样
+      atc = participantTC[maxLossParticipant] ?? currentSetting;
+      participantELSelected = getAllNextRoundEL(atc);
+      List settingList = [
+        currentSetting,
+        currentSetting + 1,
+        currentSetting - 1,
+        currentSetting + 2,
+        currentSetting - 2,
+        currentSetting + 3,
+        currentSetting - 3,
+      ];
+      // use the bool value to get the first matched value in settingList
+      bool flag = true;
+      double maxMinAEL = double.negativeInfinity;
+      for (int element in settingList) {
+
+        // Next round AEL when the next setting is 'element'
+        Map<String, double> participantELNextRound = getAllNextRoundEL(element);
+
+        // 如果element可以使最大EL变小
+        // If With the setting of 'element', the participant with max el will decrease
+        if (participantELNextRound[maxLossParticipant]! <
+            participantEL[maxLossParticipant]! ) {
+
+          // on top of decreasing the max, increase the min.
+          if(participantELNextRound[minLossParticipant]! > participantEL[minLossParticipant]!){
+            atc = element;
+            participantELSelected = participantELNextRound;
+            maxMinAEL = participantELNextRound[minLossParticipant]!;
+            break;
+          }
+
+          // if (flag) {
+          //   atc = element;
+          //   participantELSelected = participantELNextRound;
+          //   flag = false;
+          // }
+          //
+          // if (getGrossAbsAEL(participantELNextRound) <
+          //     getGrossAbsAEL(participantEL)) {
+          //   atc = element;
+          //   participantELSelected = participantELNextRound;
+          //   break;
+          // }
         }
-
-        // if (flag) {
-        //   atc = element;
-        //   participantELSelected = participantELNextRound;
-        //   flag = false;
-        // }
-        //
-        // if (getGrossAbsAEL(participantELNextRound) <
-        //     getGrossAbsAEL(participantEL)) {
-        //   atc = element;
-        //   participantELSelected = participantELNextRound;
-        //   break;
+        // else{
+        //   print("there");
+        //   participantELSelected = getAllNextRoundEL(atc);
         // }
       }
-      // else{
-      //   print("there");
-      //   participantELSelected = getAllNextRoundEL(atc);
-      // }
+
+      // atc 不能超过currentSetting 和participantTC的范围
+      if(atc>participantTC[maxLossParticipant]! && atc> currentSetting){
+        atc = participantTC[maxLossParticipant]!;
+        // print("works");
+      }
+      if(atc<participantTC[maxLossParticipant]! && atc< currentSetting){
+        atc = participantTC[maxLossParticipant]!;
+        // print("works");
+      }
     }
 
-    if(atc>participantTC[maxLossParticipant]! && atc> currentSetting){
-      atc = participantTC[maxLossParticipant]!;
-      print("works");
-    }
-    if(atc<participantTC[maxLossParticipant]! && atc< currentSetting){
-      atc = participantTC[maxLossParticipant]!;
-      print("works");
-    }
+
 
     currentSetting = atc;
 
@@ -121,8 +164,9 @@ class MyAlgorithm {
           FirebaseFirestore.instance.collection('users');
       currentValue.doc(key).update({'ael': value});
     });
+    print(participantTC);
     print(participantELSelected);
-    return 1;
+
   }
 
   Map<String, double> getAllNextRoundEL(int nextATC) {
@@ -152,7 +196,7 @@ class MyAlgorithm {
   }
 
   Future<void> start(int second) async {
-    // Get and set current temp setting
+    // Get the current temp setting
     Map<String, dynamic> data = {};
     await FirebaseFirestore.instance
         .collection("CurrentValue")
@@ -168,7 +212,6 @@ class MyAlgorithm {
     });
 
 
-    calculateATC();
     Timer.periodic(Duration(seconds: second), (Timer t) {
       calculateATC();
       // print("doing algorithm");

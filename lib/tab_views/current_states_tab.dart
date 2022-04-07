@@ -174,7 +174,9 @@ class _CurrentStatesTabState extends State<CurrentStatesTab> {
                     ElevatedButton(onPressed: (snapshot.data![1].get("voted") && snapshot.data![1].get("location") == widget.userInfo.location)? null : (){
                       setState(() {
 
-                        double voteValue = snapshot.data![0].get(_selectedLocation) + _scaleValue;
+                        // Cause the question is "How do you feel", so the voteValue should be current setting minus scaleValue.
+                        // For instance, if the user vote "hot(+3)", his preference should be current setting -(+3).
+                        double voteValue = snapshot.data![0].get(_selectedLocation) - _scaleValue;
                         if(widget.userInfo.votes.length <= widget.userInfo.voteIndex){
                           widget.userInfo.votes.add(voteValue);
                         }else{
